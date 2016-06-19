@@ -10,10 +10,17 @@ import UIKit
 import ArcGIS
 
 
-class BorrowViewController: UIViewController, UISearchBarDelegate {
+class BorrowViewController: UIViewController, UISearchBarDelegate,AGSMapViewLayerDelegate {
 
+    @IBOutlet weak var mapView: AGSMapView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        let url = NSURL(string: "http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer")
+        let tiledLayer = AGSTiledMapServiceLayer(URL: url)
+        self.mapView.addMapLayer(tiledLayer, withName: "Basemap Tiled Layer")
+        
+        //2. Set the map view's layer delegate
+        self.mapView.layerDelegate = self
 
         // Do any additional setup after loading the view.
          searchBar.delegate = self
@@ -33,6 +40,13 @@ class BorrowViewController: UIViewController, UISearchBarDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    func mapViewDidLoad(mapView: AGSMapView!) {
+        //do something now that the map is loaded
+        //for example, show the current location on the map
+        mapView.locationDisplay.startDataSource()
+    }
+    
+
     
     
 
