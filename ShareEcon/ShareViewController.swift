@@ -9,8 +9,9 @@
 import UIKit
 import ArcGIS
 import SwiftyJSON
+import CoreLocation
 
-class ShareViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ShareViewController: UIViewController, UITableViewDelegate, CLLocationManagerDelegate, UITableViewDataSource {
 
     @IBOutlet weak var textShare: UITextField!
     
@@ -19,10 +20,19 @@ class ShareViewController: UIViewController, UITableViewDelegate, UITableViewDat
     @IBOutlet weak var tableShare: UITableView!
     
     var data = [""]
+    var currentLocation = ""
+    
+    var  locationManager:CLLocationManager!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableShare.dataSource = self
+        
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestAlwaysAuthorization()
+        locationManager.startUpdatingLocation()
 
         // Do any additional setup after loading the view.
     }
@@ -40,7 +50,7 @@ class ShareViewController: UIViewController, UITableViewDelegate, UITableViewDat
     func postData(itemName: String){
         let request = NSMutableURLRequest(URL: NSURL(string: "http://localhost:3000/" + itemName)!)
         request.HTTPMethod = "POST"
-        let postString = "name=" + itemName + "&location=NewYork"
+        let postString = "name=" + itemName + "&location=" + currentLocation
         request.HTTPBody = postString.dataUsingEncoding(NSUTF8StringEncoding)
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request) { data, response, error in
             guard error == nil && data != nil else {                                                          // check for fundamental networking error
@@ -57,6 +67,15 @@ class ShareViewController: UIViewController, UITableViewDelegate, UITableViewDat
             print("responseString = \(responseString)")
         }
         task.resume()
+    }
+    
+    func locationManager(manager:CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        let lat:String = "\(locations[0].coordinate.latitude)";
+        let long:String = "\(locations[0].coordinate.longitude)";
+        
+        currentLocation = lat + "," + long
+        print(currentLocation);
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
