@@ -4,6 +4,7 @@ platform :ios, '8.0'
 use_frameworks!
 
 target 'ShareEcon' do
-pod ‘ArcGIS-Runtime-SDK-iOS’
+	pod ‘ArcGIS-Runtime-SDK-iOS’
+	pod 'SwiftyJSON'
 end
 
