@@ -21,6 +21,8 @@ class ShareViewController: UIViewController, UITableViewDelegate, CLLocationMana
     
     var data = [""]
     var currentLocation = ""
+    var lat: Double = 0.0
+    var long: Double = 0.0
     
     var  locationManager:CLLocationManager!
     
@@ -50,7 +52,7 @@ class ShareViewController: UIViewController, UITableViewDelegate, CLLocationMana
     func postData(itemName: String){
         let request = NSMutableURLRequest(URL: NSURL(string: "http://localhost:3000/" + itemName)!)
         request.HTTPMethod = "POST"
-        let postString = "name=" + itemName + "&location=" + currentLocation
+        let postString = "name=\(itemName)&lat=\(lat)&long=\(long)"
         request.HTTPBody = postString.dataUsingEncoding(NSUTF8StringEncoding)
         let task = NSURLSession.sharedSession().dataTaskWithRequest(request) { data, response, error in
             guard error == nil && data != nil else {                                                          // check for fundamental networking error
@@ -71,11 +73,9 @@ class ShareViewController: UIViewController, UITableViewDelegate, CLLocationMana
     
     func locationManager(manager:CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        let lat:String = "\(locations[0].coordinate.latitude)";
-        let long:String = "\(locations[0].coordinate.longitude)";
+        lat = locations[0].coordinate.latitude;
+        long = locations[0].coordinate.longitude;
         
-        currentLocation = lat + "," + long
-        //print(currentLocation);
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {

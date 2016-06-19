@@ -43,6 +43,8 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
     var numBarriers:Int = 0
     var directionIndex:Int = 0
     
+    var lastItem: String = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -88,6 +90,8 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
         self.sketchLayer = AGSSketchGraphicsLayer(geometry: mp)
         self.mapView.addMapLayer(self.sketchLayer, withName:"sketchLayer")
         
+        
+        
         // set the mapView's touchDelegate to the sketchLayer so we get points symbolized when sketching
         self.mapView.touchDelegate = self.sketchLayer
         
@@ -110,28 +114,79 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
 
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         print("searchText \(searchText)")
+        
+        //Clear everything
+        if searchText == ""{
+            //Projection
+            self.reset()
+            
+            
+            //addStop("Me")
+            
+        }
+        
         //addStop("Fish")
+    }
+    
+    
+    //
+    // reset the sample so we can perform another route
+    //
+    func reset() {
+        // set stop counter back to 0
+        self.numStops = 0
+        
+        // set barrier counter back to 0
+        self.numBarriers = 0
+        
+        // reset direction index
+        self.directionIndex = 0
+        
+        // remove all graphics
+        self.graphicsLayer.removeAllGraphics()
+        
+
+        
+        //
+        // if the sketch layer was removed/nil'd out, re-add it
+        if self.sketchLayer == nil {
+            var geometry:AGSGeometry!
+
+            geometry = AGSMutablePoint(spatialReference: self.mapView.spatialReference)
+
+            self.sketchLayer = AGSSketchGraphicsLayer(geometry: geometry)
+            self.mapView.insertMapLayer(self.sketchLayer, withName:"sketchLayer", atIndex:1)
+            self.mapView.touchDelegate = self.sketchLayer
+        }
+            
+        else {
+            // clear the sketch layer and reset it to a point
+            self.sketchLayer.clear()
+        }
+        
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         print("searchText \(searchBar.text)")
         
-        
-        
+        searchBar.text = searchBar.text?.lowercaseString
+    
         var json:NSData = getJSON("http:localhost:3000/" + searchBar.text!)
         var data:NSDictionary = parseJSON(json);
         
-        var items: Array = data["items"]! as! Array<AnyObject>
+        var items: Array = data["name"]! as! Array<AnyObject>
+        print(items)
         let geometryEngine = AGSGeometryEngine.defaultGeometryEngine()
-        
         let sr = AGSSpatialReference.wgs84SpatialReference()
-        let curLoc = AGSPoint(x: long, y: lat, spatialReference: sr)
+        let curLoc = AGSPoint(x: items[0]["long"] as! Double, y: items[0]["lat"] as! Double, spatialReference: sr)
         self.sketchLayer.insertVertex(curLoc, inPart: 0, atIndex: -1)
         let newGeometry = geometryEngine.projectGeometry(curLoc, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
         self.sketchLayer.geometry = newGeometry
+        print("NAME", items[0]["name"])
+        lastItem = items[0]["name"] as! String
         addStop(items[0]["name"] as! String)
-        
         routeBtnClicked()
+        
     }
     
     
@@ -168,34 +223,13 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
                                   spatialReference:sr)
             self.mapView.zoomToEnvelope(env, animated:true)
             //Projection
-            
-            
-            /*
-            var json:NSData = getJSON("http:localhost:3000/" + searchBar.text!)
-            var data:NSDictionary = parseJSON(json);
-            //projectPoints(data["items"]![0]!["long"] as! Double, la: data["items"]![0]!["lat"] as! Double)
-            
-            var items: Array = data["items"]! as! Array<AnyObject>
             let geometryEngine = AGSGeometryEngine.defaultGeometryEngine()
             
             let curLoc = AGSPoint(x: long, y: lat, spatialReference: sr)
-            print ("INIT", curLoc)
             self.sketchLayer.insertVertex(curLoc, inPart: 0, atIndex: -1)
             let newGeometry = geometryEngine.projectGeometry(curLoc, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
             self.sketchLayer.geometry = newGeometry
             addStop("Me")
-            
-            for item in items{
-                let curLoc = AGSPoint(x: item["long"] as! Double, y: item["lat"] as! Double, spatialReference: AGSSpatialReference.wgs84SpatialReference())
-                self.sketchLayer.insertVertex(curLoc, inPart: 0, atIndex: -1)
-                //let geometries = self.sketchLayer.geometry as AGSGeometry
-                let newGeometry = geometryEngine.projectGeometry(curLoc, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
-                self.sketchLayer.geometry = newGeometry
-                print("NOHe",curLoc)
-                addStop(item["name"] as! String)
-            }
-
-             */
 
         }
 
@@ -278,10 +312,11 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
                 let sequence = sg.attributeAsStringForKey("Sequence")
                 
                 // create a composite symbol using the sequence number
-                sg.symbol = self.stopSymbolWithNumber("Item")
+                sg.symbol = self.stopSymbolWithNumber(lastItem)
                 
                 // add the graphic
                 self.graphicsLayer.addGraphic(sg)
+                
             }
         }
     }
@@ -356,9 +391,8 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
         let graphic = feature as! AGSGraphic
         
         let stopNum = graphic.attributeAsStringForKey("stopNumber")
-        let barrierNum = graphic.attributeAsStringForKey("barrierNumber")
         
-        if stopNum != nil || barrierNum != nil {
+        if stopNum != nil {
             self.selectedGraphic = graphic
             self.mapView.callout.customView = self.stopCalloutView
             self.sketchLayer.clear()
@@ -475,6 +509,10 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
         
         // execute the route task
         self.routeTask.solveWithParameters(self.routeTaskParams)
+        
+
+
+        
     }
 
     
