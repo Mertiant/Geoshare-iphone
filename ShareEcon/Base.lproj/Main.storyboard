@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9532" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="ShareEcon" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Bjj-bg-ZZK">
+                                <rect key="frame" x="102" y="6" width="117" height="29"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="Borrow"/>
+                                    <segment title="Share"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changedTab:" destination="BYZ-38-t0r" eventType="valueChanged" id="Ozo-Bt-3l7"/>
+                                </connections>
+                            </segmentedControl>
+                            <containerView opaque="NO" contentMode="scaleToFill" id="Gxx-fR-fuM">
+                                <rect key="frame" x="20" y="92" width="280" height="450"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <connections>
+                                    <segue destination="eFa-N1-nHi" kind="embed" id="szQ-VX-fSC"/>
+                                </connections>
+                            </containerView>
+                            <containerView opaque="NO" contentMode="scaleToFill" id="7Aw-Yl-KIh">
+                                <rect key="frame" x="20" y="94" width="280" height="450"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                <connections>
+                                    <segue destination="tyv-SI-6Ji" kind="embed" id="HE0-1F-9ki"/>
+                                </connections>
+                            </containerView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="BorrowView" destination="7Aw-Yl-KIh" id="eYA-pl-SuL"/>
+                        <outlet property="ShareView" destination="Gxx-fR-fuM" id="ovd-gm-GoF"/>
+                        <outlet property="tabControll" destination="Bjj-bg-ZZK" id="o6d-OO-G0V"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="162" y="406"/>
+        </scene>
+        <!--Share View Controller-->
+        <scene sceneID="VZf-3f-nXa">
+            <objects>
+                <viewController id="eFa-N1-nHi" customClass="ShareViewController" customModule="ShareEcon" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="XH7-xR-l1c">
+                        <rect key="frame" x="0.0" y="0.0" width="280" height="450"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ggb-yO-ebt">
+                                <rect key="frame" x="112" y="65" width="42" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qa1-DS-K7y" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="615" y="262"/>
+        </scene>
+        <!--Borrow View Controller-->
+        <scene sceneID="b60-NR-I5C">
+            <objects>
+                <viewController id="tyv-SI-6Ji" customClass="BorrowViewController" customModule="ShareEcon" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="dMX-fX-El7" customClass="Borrow">
+                        <rect key="frame" x="0.0" y="0.0" width="280" height="450"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="searchDisplayController" destination="PV3-Mr-myU" id="294-z0-bIC"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="PW9-P2-WQ9" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="PV3-Mr-myU">
+                    <connections>
+                        <outlet property="delegate" destination="tyv-SI-6Ji" id="x8t-le-ka1"/>
+                        <outlet property="searchContentsController" destination="tyv-SI-6Ji" id="A4V-4e-frz"/>
+                        <outlet property="searchResultsDataSource" destination="tyv-SI-6Ji" id="R7O-Uk-Gpm"/>
+                        <outlet property="searchResultsDelegate" destination="tyv-SI-6Ji" id="nwQ-DQ-ifc"/>
+                    </connections>
+                </searchDisplayController>
+            </objects>
+            <point key="canvasLocation" x="592" y="751"/>
+        </scene>
+    </scenes>
+</document>
