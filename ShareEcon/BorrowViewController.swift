@@ -105,22 +105,51 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
         removeStopBtn.setImage(UIImage(named: "remove24.png"), forState:.Normal)
         removeStopBtn.addTarget(self, action: "removeStopClicked", forControlEvents: .TouchUpInside)
         self.stopCalloutView = removeStopBtn
-        
-
     }
     @IBOutlet weak var searchBar: UISearchBar!
 
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         print("searchText \(searchText)")
-        addStop()
+        //addStop("Fish")
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         print("searchText \(searchBar.text)")
+        
+        
+        
+        var json:NSData = getJSON("http:localhost:3000/" + searchBar.text!)
+        var data:NSDictionary = parseJSON(json);
+        
+        var items: Array = data["items"]! as! Array<AnyObject>
+        let geometryEngine = AGSGeometryEngine.defaultGeometryEngine()
+        
+        let sr = AGSSpatialReference.wgs84SpatialReference()
+        let curLoc = AGSPoint(x: long, y: lat, spatialReference: sr)
+        self.sketchLayer.insertVertex(curLoc, inPart: 0, atIndex: -1)
+        let newGeometry = geometryEngine.projectGeometry(curLoc, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
+        self.sketchLayer.geometry = newGeometry
+        addStop(items[0]["name"] as! String)
+        
         routeBtnClicked()
     }
     
     
+    func getJSON(urlToRequest: String) -> NSData{
+        return NSData(contentsOfURL: NSURL(string: urlToRequest)!)!
+    }
+    
+    func parseJSON(inputData: NSData) -> NSDictionary{
+        do{
+        let boardsDictionary: NSDictionary = try NSJSONSerialization.JSONObjectWithData(inputData, options: NSJSONReadingOptions.MutableContainers) as! NSDictionary
+            return boardsDictionary
+        }
+        catch{
+            print("Error")
+        }
+
+        return NSDictionary()
+    }
 
 
     
@@ -132,20 +161,41 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
         if numStops == 0{
             print (long, lat)
             let sr = AGSSpatialReference.wgs84SpatialReference()
-            let env = AGSEnvelope(xmin: long - 0.1,
-                                  ymin: lat - 0.1,
-                                  xmax: long + 0.1,
-                                  ymax: lat + 0.1,
+            let env = AGSEnvelope(xmin: long - 0.2,
+                                  ymin: lat - 0.2,
+                                  xmax: long + 0.2,
+                                  ymax: lat + 0.2,
                                   spatialReference:sr)
             self.mapView.zoomToEnvelope(env, animated:true)
             //Projection
+            
+            
+            /*
+            var json:NSData = getJSON("http:localhost:3000/" + searchBar.text!)
+            var data:NSDictionary = parseJSON(json);
+            //projectPoints(data["items"]![0]!["long"] as! Double, la: data["items"]![0]!["lat"] as! Double)
+            
+            var items: Array = data["items"]! as! Array<AnyObject>
             let geometryEngine = AGSGeometryEngine.defaultGeometryEngine()
+            
             let curLoc = AGSPoint(x: long, y: lat, spatialReference: sr)
+            print ("INIT", curLoc)
             self.sketchLayer.insertVertex(curLoc, inPart: 0, atIndex: -1)
-            let geometries = self.sketchLayer.geometry as AGSGeometry
-            let newGeometry = geometryEngine.projectGeometry(geometries, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
+            let newGeometry = geometryEngine.projectGeometry(curLoc, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
             self.sketchLayer.geometry = newGeometry
-            addStop()
+            addStop("Me")
+            
+            for item in items{
+                let curLoc = AGSPoint(x: item["long"] as! Double, y: item["lat"] as! Double, spatialReference: AGSSpatialReference.wgs84SpatialReference())
+                self.sketchLayer.insertVertex(curLoc, inPart: 0, atIndex: -1)
+                //let geometries = self.sketchLayer.geometry as AGSGeometry
+                let newGeometry = geometryEngine.projectGeometry(curLoc, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
+                self.sketchLayer.geometry = newGeometry
+                print("NOHe",curLoc)
+                addStop(item["name"] as! String)
+            }
+
+             */
 
         }
 
@@ -180,6 +230,15 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
     }
     
     
+    func projectPoints(lo: Double, la: Double){
+        let sr = AGSSpatialReference.wgs84SpatialReference()
+        let geometryEngine = AGSGeometryEngine.defaultGeometryEngine()
+        let curLoc = AGSPoint(x: lo, y: la, spatialReference: sr)
+        self.sketchLayer.insertVertex(curLoc, inPart: 0, atIndex: -1)
+        let geometries = self.sketchLayer.geometry as AGSGeometry
+        let newGeometry = geometryEngine.projectGeometry(geometries, toSpatialReference: AGSSpatialReference.webMercatorSpatialReference())
+        self.sketchLayer.geometry = newGeometry
+    }
     
     
     //
@@ -216,10 +275,10 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
                 
                 // get the sequence from the attribetus
                 var exists:ObjCBool = false
-                let sequence = sg.attributeAsIntegerForKey("Sequence", exists: &exists)
+                let sequence = sg.attributeAsStringForKey("Sequence")
                 
                 // create a composite symbol using the sequence number
-                sg.symbol = self.stopSymbolWithNumber(sequence)
+                sg.symbol = self.stopSymbolWithNumber("Item")
                 
                 // add the graphic
                 self.graphicsLayer.addGraphic(sg)
@@ -263,30 +322,31 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
     //
     // create a composite symbol with a number
     //
-    func stopSymbolWithNumber(stopNumber:Int) -> AGSCompositeSymbol {
+    func stopSymbolWithNumber(itemName:String) -> AGSCompositeSymbol {
         let cs = AGSCompositeSymbol()
         
         // create outline
         let sls = AGSSimpleLineSymbol()
         sls.color = UIColor.blackColor()
-        sls.width = 2
+        sls.width = 1
         sls.style = .Solid
         
         // create main circle
         let sms = AGSSimpleMarkerSymbol()
-        sms.color = UIColor.greenColor()
+        sms.color = UIColor.whiteColor()
         sms.outline = sls
-        sms.size = CGSizeMake(20, 20)
+        sms.size = CGSizeMake(30, 30)
         sms.style = .Circle
         cs.addSymbol(sms)
         
         //    // add number as a text symbol
-        let ts = AGSTextSymbol(text: "\(stopNumber)", color: UIColor.blackColor())
+        let ts = AGSTextSymbol(text: "\(itemName)", color: UIColor.blackColor())
         ts.vAlignment = .Middle
         ts.hAlignment = .Center
-        ts.fontSize	= 16
+        ts.fontSize	= 12
         cs.addSymbol(ts)
         
+        cs
         return cs
     }
     
@@ -308,8 +368,21 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
         }
     }
     
+    func removeStopClicked() {
+        if self.selectedGraphic is AGSStopGraphic {
+            // we have a stop
+            self.numStops--
+        }
+
+        self.graphicsLayer.removeGraphic(self.selectedGraphic)
+        self.selectedGraphic = nil
+        
+        // hide the callout
+        self.mapView.callout.hidden = true
+    }
     
-    func addStop() {
+    
+    func addStop(name: String) {
     
         //grab the geometry, then clear the sketch
         //TODO: check for copy
@@ -320,14 +393,14 @@ class BorrowViewController: UIViewController, UISearchBarDelegate, AGSMapViewLay
         self.sketchLayer.clear()
         
         //Prepare symbol and attributes for the Stop/Barrier
-        var attributes = [String: Int]()
+        var attributes = [String: String]()
         var symbol:AGSSymbol!
         
         //Stop
         self.numStops++
-        print(self.numStops)
-        attributes["stopNumber"] = self.numStops
-        symbol = self.stopSymbolWithNumber(self.numStops)
+        print(self.numStops, name)
+        attributes["stopNumber"] = name
+        symbol = self.stopSymbolWithNumber(name)
         let stopGraphic = AGSStopGraphic(geometry: geometry, symbol:symbol, attributes:attributes)
         stopGraphic.sequence = UInt(self.numStops)
         
