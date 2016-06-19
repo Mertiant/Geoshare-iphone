@@ -75,7 +75,7 @@ class ShareViewController: UIViewController, UITableViewDelegate, CLLocationMana
         let long:String = "\(locations[0].coordinate.longitude)";
         
         currentLocation = lat + "," + long
-        print(currentLocation);
+        //print(currentLocation);
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
