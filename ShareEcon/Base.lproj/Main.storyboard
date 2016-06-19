@@ -13,17 +13,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Bjj-bg-ZZK">
-                                <rect key="frame" x="102" y="6" width="117" height="29"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <segments>
-                                    <segment title="Borrow"/>
-                                    <segment title="Share"/>
-                                </segments>
-                                <connections>
-                                    <action selector="changedTab:" destination="BYZ-38-t0r" eventType="valueChanged" id="Ozo-Bt-3l7"/>
-                                </connections>
-                            </segmentedControl>
                             <containerView opaque="NO" contentMode="scaleToFill" id="Gxx-fR-fuM">
                                 <rect key="frame" x="20" y="92" width="280" height="450"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
@@ -38,6 +27,17 @@
                                     <segue destination="tyv-SI-6Ji" kind="embed" id="HE0-1F-9ki"/>
                                 </connections>
                             </containerView>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Bjj-bg-ZZK">
+                                <rect key="frame" x="102" y="40" width="117" height="29"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="Borrow"/>
+                                    <segment title="Share"/>
+                                </segments>
+                                <connections>
+                                    <action selector="changedTab:" destination="BYZ-38-t0r" eventType="valueChanged" id="Ozo-Bt-3l7"/>
+                                </connections>
+                            </segmentedControl>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
@@ -99,9 +99,17 @@
                     <view key="view" contentMode="scaleToFill" id="dMX-fX-El7" customClass="Borrow">
                         <rect key="frame" x="0.0" y="0.0" width="280" height="450"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <searchBar contentMode="redraw" id="59O-Vr-h40">
+                                <rect key="frame" x="20" y="20" width="240" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <connections>
+                        <outlet property="searchBar" destination="59O-Vr-h40" id="XhW-le-We6"/>
                         <outlet property="searchDisplayController" destination="PV3-Mr-myU" id="294-z0-bIC"/>
                     </connections>
                 </viewController>

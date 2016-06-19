@@ -9,18 +9,30 @@
 import UIKit
 import ArcGIS
 
-class BorrowViewController: UIViewController {
+class BorrowViewController: UIViewController, UISearchBarDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+         searchBar.delegate = self
+    }
+    @IBOutlet weak var searchBar: UISearchBar!
+
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        print("searchText \(searchText)")
+    }
+    
+    func searchBarSearchButtonClicked(searchBar: UISearchBar) {
+        print("searchText \(searchBar.text)")
     }
 
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
     
 
     /*
